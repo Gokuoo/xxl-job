@@ -9,6 +9,8 @@
 	    <result column="password" property="password" />
 	    <result column="role" property="role" />
 	    <result column="permission" property="permission" />
+		<result column="secret_key" property="secretKey" />
+		<result column="two_factor_enabled" property="twoFactorEnabled" />
 	</resultMap>
 
 	<sql id="Base_Column_List">
@@ -16,7 +18,9 @@
 		t.username,
 		t.password,
 		t.role,
-		t.permission
+		t.permission,
+        t.secret_key,
+        t.two_factor_enabled
 	</sql>
 
 	<select id="pageList" parameterType="java.util.HashMap" resultMap="XxlJobUser">
@@ -53,17 +57,28 @@
 		WHERE t.username = #{username}
 	</select>
 
+	<!-- 新增：根据ID查询用户 -->
+	<select id="loadById" resultMap="XxlJobUser">
+		SELECT <include refid="Base_Column_List" />
+		FROM xxl_job_user AS t
+		WHERE id = #{id}
+	</select>
+
 	<insert id="save" parameterType="com.xxl.job.admin.core.model.XxlJobUser" useGeneratedKeys="true" keyProperty="id" >
 		INSERT INTO xxl_job_user (
 			username,
 			password,
 			role,
-			permission
+			permission,
+			secret_key,
+			two_factor_enabled
 		) VALUES (
 			#{username},
 			#{password},
 			#{role},
-			#{permission}
+			#{permission},
+			#{secretKey},
+			#{twoFactorEnabled}
 		);
 	</insert>
 
@@ -74,7 +89,9 @@
 				password = #{password},
 			</if>
 			role = #{role},
-			permission = #{permission}
+			permission = #{permission},
+			secret_key = #{secretKey},
+			two_factor_enabled = #{twoFactorEnabled}
 		WHERE id = #{id}
 	</update>
 

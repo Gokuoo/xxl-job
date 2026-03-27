@@ -12,6 +12,8 @@ public class XxlJobUser {
 	private String password;		// 密码
 	private int role;				// 角色：0-普通用户、1-管理员
 	private String permission;	// 权限：执行器ID列表，多个逗号分割
+	private String secretKey;           // Google Authenticator密钥
+	private Integer twoFactorEnabled;   // 是否启用双因子认证 0-未启用 1-已启用
 
 	public int getId() {
 		return id;
@@ -51,6 +53,22 @@ public class XxlJobUser {
 
 	public void setPermission(String permission) {
 		this.permission = permission;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+
+	public Integer getTwoFactorEnabled() {
+		return twoFactorEnabled;
+	}
+
+	public void setTwoFactorEnabled(Integer twoFactorEnabled) {
+		this.twoFactorEnabled = twoFactorEnabled;
 	}
 
 	// plugin

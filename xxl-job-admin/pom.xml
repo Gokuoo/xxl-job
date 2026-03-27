@@ -77,6 +77,18 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 
+		<!-- Google Authenticator TOTP 支持 -->
+		<dependency>
+			<groupId>com.warrenstrange</groupId>
+			<artifactId>googleauth</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+		<!-- Apache Commons Codec -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.15</version>
+		</dependency>
 	</dependencies>
 
 	<build>

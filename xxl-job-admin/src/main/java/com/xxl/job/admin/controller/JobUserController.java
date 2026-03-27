@@ -7,6 +7,7 @@ import com.xxl.job.admin.core.model.XxlJobUser;
 import com.xxl.job.admin.core.util.I18nUtil;
 import com.xxl.job.admin.dao.XxlJobGroupDao;
 import com.xxl.job.admin.dao.XxlJobUserDao;
+import com.xxl.job.admin.util.GoogleAuthenticatorUtil;
 import com.xxl.job.core.biz.model.ReturnT;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -183,4 +184,89 @@ public class JobUserController {
         return ReturnT.SUCCESS;
     }
 
+    /**
+     * 生成2FA密钥和二维码
+     */
+    @RequestMapping("/twoFactor/generate")
+    @ResponseBody
+    public ReturnT<Map<String, String>> generateTwoFactorSecret(@RequestParam("userId") int userId) {
+        XxlJobUser loginUser = xxlJobUserDao.loadById(userId);
+        if (loginUser == null) {
+            return new ReturnT<>(ReturnT.FAIL_CODE, "用户不存在");
+        }
+
+        // 生成密钥
+        String secretKey = GoogleAuthenticatorUtil.generateSecretKey();
+        String qrCodeUrl = GoogleAuthenticatorUtil.getQRCodeUrl(
+                loginUser.getUsername(),
+                secretKey,
+                "XXL-JOB"
+        );
+
+        Map<String, String> result = new HashMap<>();
+        result.put("secretKey", secretKey);
+        result.put("qrCodeUrl", qrCodeUrl);
+
+        return new ReturnT<>(result);
+    }
+
+    /**
+     * 验证并启用2FA
+     */
+    @RequestMapping("/twoFactor/enable")
+    @ResponseBody
+    public ReturnT<String> enableTwoFactor(
+            @RequestParam("userId") int userId,
+            @RequestParam("secretKey") String secretKey,
+            @RequestParam("verifyCode") int verifyCode) {
+
+        XxlJobUser user = xxlJobUserDao.loadById(userId);
+        if (user == null) {
+            return new ReturnT<>(ReturnT.FAIL_CODE, "用户不存在");
+        }
+
+        // 验证验证码
+        boolean isValid = GoogleAuthenticatorUtil.verifyCode(secretKey, verifyCode);
+        if (!isValid) {
+            return new ReturnT<>(ReturnT.FAIL_CODE, "验证码错误");
+        }
+
+        // 保存密钥并启用2FA
+        user.setSecretKey(secretKey);
+        user.setTwoFactorEnabled(1);
+        xxlJobUserDao.update(user);
+
+        return ReturnT.SUCCESS;
+    }
+
+    /**
+     * 禁用2FA
+     */
+    @RequestMapping("/twoFactor/disable")
+    @ResponseBody
+    public ReturnT<String> disableTwoFactor(
+            @RequestParam("userId") int userId,
+            @RequestParam("verifyCode") int verifyCode) {
+
+        XxlJobUser user = xxlJobUserDao.loadById(userId);
+        if (user == null) {
+            return new ReturnT<>(ReturnT.FAIL_CODE, "用户不存在");
+        }
+
+        if (user.getTwoFactorEnabled() != 1) {
+            return new ReturnT<>(ReturnT.FAIL_CODE, "2FA未启用");
+        }
+
+        // 验证验证码
+        boolean isValid = GoogleAuthenticatorUtil.verifyCode(user.getSecretKey(), verifyCode);
+        if (!isValid) {
+            return new ReturnT<>(ReturnT.FAIL_CODE, "验证码错误");
+        }
+
+        user.setSecretKey(null);
+        user.setTwoFactorEnabled(0);
+        xxlJobUserDao.update(user);
+
+        return ReturnT.SUCCESS;
+    }
 }

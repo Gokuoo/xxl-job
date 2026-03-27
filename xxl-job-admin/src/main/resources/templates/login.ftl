@@ -22,6 +22,14 @@
 	            	<input type="password" name="password" class="form-control" placeholder="${I18n.login_password_placeholder}"  maxlength="20" >
 	            	<span class="glyphicon glyphicon-lock form-control-feedback"></span>
 	          	</div>
+				<!-- 在密码输入框后面添加 -->
+				<div class="form-group">
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-qrcode"></i></span>
+						<input type="text" class="form-control" id="twoFactorCode" name="twoFactorCode"
+							   placeholder="Google验证码（6位数字）" maxlength="6" autocomplete="off">
+					</div>
+				</div>
 				<div class="row">
 					<div class="col-xs-8">
 		              	<div class="checkbox icheck">

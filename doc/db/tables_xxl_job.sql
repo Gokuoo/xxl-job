@@ -119,6 +119,8 @@ CREATE TABLE `xxl_job_user`
     `password`   varchar(50) NOT NULL COMMENT '密码',
     `role`       tinyint(4)  NOT NULL COMMENT '角色：0-普通用户、1-管理员',
     `permission` varchar(255) DEFAULT NULL COMMENT '权限：执行器ID列表，多个逗号分割',
+    `secret_key` varchar(100) DEFAULT NULL COMMENT 'Google Authenticator密钥',
+    `two_factor_enabled` tinyint(1) DEFAULT '0' COMMENT '是否启用双因子认证(0:未启用,1:已启用)',
     PRIMARY KEY (`id`),
     UNIQUE KEY `i_username` (`username`) USING BTREE
 ) ENGINE = InnoDB

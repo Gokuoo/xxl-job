@@ -5,6 +5,7 @@ import com.xxl.job.admin.core.util.CookieUtil;
 import com.xxl.job.admin.core.util.I18nUtil;
 import com.xxl.job.admin.core.util.JacksonUtil;
 import com.xxl.job.admin.dao.XxlJobUserDao;
+import com.xxl.job.admin.util.GoogleAuthenticatorUtil;
 import com.xxl.job.core.biz.model.ReturnT;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -45,7 +46,7 @@ public class LoginService {
 
     // ---------------------- login tool, with cookie and db ----------------------
 
-    public ReturnT<String> login(HttpServletRequest request, HttpServletResponse response, String username, String password, boolean ifRemember){
+    public ReturnT<String> login(HttpServletRequest request, HttpServletResponse response, String username, String password, boolean ifRemember, String twoFactorCode){
 
         // param
         if (username==null || username.trim().length()==0 || password==null || password.trim().length()==0){
@@ -61,6 +62,33 @@ public class LoginService {
         if (!passwordMd5.equals(xxlJobUser.getPassword())) {
             return new ReturnT<String>(500, I18nUtil.getString("login_param_unvalid"));
         }
+
+        // ========== 2FA校验 ==========
+        // 如果用户启用了2FA
+        if (xxlJobUser.getTwoFactorEnabled() != null && xxlJobUser.getTwoFactorEnabled() == 1) {
+            // 检查是否输入了验证码
+            if (twoFactorCode == null || twoFactorCode.trim().isEmpty()) {
+                return new ReturnT<>(ReturnT.FAIL_CODE, "请输入Google Authenticator验证码");
+            }
+
+            int code;
+            try {
+                code = Integer.parseInt(twoFactorCode.trim());
+            } catch (NumberFormatException e) {
+                return new ReturnT<>(ReturnT.FAIL_CODE, "验证码格式错误，请输入6位数字");
+            }
+
+            // 验证码长度校验
+            if (twoFactorCode.trim().length() != 6) {
+                return new ReturnT<>(ReturnT.FAIL_CODE, "验证码格式错误，请输入6位数字");
+            }
+
+            boolean isValid = GoogleAuthenticatorUtil.verifyCode(xxlJobUser.getSecretKey(), code);
+            if (!isValid) {
+                return new ReturnT<>(ReturnT.FAIL_CODE, "Google Authenticator验证码错误");
+            }
+        }
+        // ========== 2FA校验结束 ==========
 
         String loginToken = makeToken(xxlJobUser);
 

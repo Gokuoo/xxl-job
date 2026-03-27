@@ -22,6 +22,9 @@ public interface XxlJobUserDao {
 
 	public XxlJobUser loadByUserName(@Param("username") String username);
 
+	// 新增：根据ID查询用户
+	public XxlJobUser loadById(@Param("id") int id);
+
 	public int save(XxlJobUser xxlJobUser);
 
 	public int update(XxlJobUser xxlJobUser);

@@ -178,7 +178,40 @@
 		</div>
 	</div>
 </div>
-
+<!-- 绑定2FA弹窗 -->
+<div id="bindTwoFactorDialog" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">绑定Google Authenticator</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label>步骤1：扫描二维码</label>
+					<div class="text-center" style="margin: 15px 0;">
+						<img id="qrCodeImg" src="" style="width: 200px; height: 200px; border: 1px solid #ddd;">
+					</div>
+				</div>
+				<div class="form-group">
+					<label>步骤2：手动输入密钥（备用）</label>
+					<input type="text" id="secretKeyText" class="form-control" readonly>
+				</div>
+				<div class="form-group">
+					<label>步骤3：输入验证码确认</label>
+					<input type="text" id="verifyCodeInput" class="form-control"
+						   placeholder="请输入6位验证码" maxlength="6">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				<button type="button" id="confirmBindBtn" class="btn btn-primary">确认绑定</button>
+			</div>
+		</div>
+	</div>
+</div>
 <@netCommon.commonScript />
 <!-- DataTables -->
 <script src="${request.contextPath}/static/adminlte/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
